@@ -53,15 +53,17 @@ pipeline {
 				//primitive way
 				//"docker build - t saravrock/currency-exchange-devops:$env.BUILD_TAG"
 			    script {
-					dockerImage = docker.build("saravrock/currency-exchange-devops:${$env.BUILD_TAG}")
+					dockerImage = docker.build("saravrock/currency-exchange-devops:${env.BUILD_TAG}")
 				}
 			}
 		}
 		stage('Push Docker Image') {
 			steps {
-				docker.withRegistry('','dockerhub')
-				dockerImage.push();
-				docker.Image.push('latest');
+				script {
+					docker.withRegistry('','dockerhub')
+					dockerImage.push();
+					docker.Image.push('latest');
+				}
 			}
 		}
 	} 
