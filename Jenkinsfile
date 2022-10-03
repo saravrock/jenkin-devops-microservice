@@ -11,7 +11,7 @@ pipeline {
 		PATH = "$dockerHome/bin:$mavenHome/bin:$PATH"
 	}
 	stages {
-		stage('Build') {
+		stage('Checkout') {
 			steps {
 				sh 'mvn --version'
 				sh 'docker version'
@@ -24,14 +24,44 @@ pipeline {
 				echo "BUILD_URL - $env.BUILD_URL"
 			}
 		}
-		stage('Test') {
+		stage('Build') {
 			steps {
-				echo "Test"
+				sh "mvn clean compile"
 			}
 		}
+
+		stage('Test') {
+			steps {
+				sh "mvn test"
+			}
+		}
+
 		stage('Integration Test') {
 			steps {
-				echo "Integration Test"
+				sh "mvn failsafe:integration-test failsafe:verify"
+			}
+		}
+
+		stage('Package') {
+			steps {
+				sh "mvn package -DskipTests"
+			}
+		}
+
+		stage('Build Docker Image') {
+			steps {
+				//primitive way
+				//"docker build - t saravrock/currency-exchange-devops:$env.BUILD_TAG"
+			    script {
+					docker.build("saravrock/currency-exchange-devops:{$env.BUILD_TAG}")
+				}
+			}
+		}
+		stage('Push Docker Image') {
+			steps {
+				docker.withRegistry('','dockerhub')
+				dockerImage.push();
+				docker.Image.push('latest');
 			}
 		}
 	} 
