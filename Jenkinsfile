@@ -53,7 +53,7 @@ pipeline {
 				//primitive way
 				//"docker build - t saravrock/currency-exchange-devops:$env.BUILD_TAG"
 			    script {
-					docker.build("saravrock/currency-exchange-devops:{$env.BUILD_TAG}")
+					dockerImage = docker.build("saravrock/currency-exchange-devops:${$env.BUILD_TAG}")
 				}
 			}
 		}
